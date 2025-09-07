@@ -42,7 +42,6 @@ def suffix_after_last_underscore(stem: str) -> str:
 def sanitize_sheet_name(name: str) -> str:
     """
     Remove characters illegal for Excel sheet names and trim spaces.
-    Excel forbids: : \ / ? * [ ]
     """
     name = re.sub(r'[:\\/\?\*\[\]]', " ", name).strip()
     # Replace consecutive spaces with single space
@@ -106,14 +105,11 @@ def collect_tables(folder: str) -> Tuple[List[pd.DataFrame], List[str]]:
         if ext in EXCEL_EXTS:
             sheets = read_excel_all_sheets(path)
             if len(sheets) == 1:
-                # Single-sheet Excel -> use suffix after last underscore of filename
-                base = suffix_after_last_underscore(stem).strip()
-                base = base or stem
-                sheet_name = base
-                df = sheets[0][1]
+                # Single-sheet Excel -> use filename as sheet name
+                original_name, df = sheets[0]
                 dfs.append(df)
-                planned_names.append(sheet_name)
-                logging.info(f"[Excel-1] {fname} -> sheet '{sheet_name}'")
+                planned_names.append(stem)
+                logging.info(f"[Excel-1] {fname} -> sheet '{stem}'")
             else:
                 # Multi-sheet Excel -> use original sheet names
                 for original_name, df in sheets:
@@ -124,10 +120,9 @@ def collect_tables(folder: str) -> Tuple[List[pd.DataFrame], List[str]]:
         elif ext in CSV_EXTS:
             # Single sheet per CSV
             df = read_csv_like(path)
-            base = suffix_after_last_underscore(stem).strip() or stem
             dfs.append(df)
-            planned_names.append(base)
-            logging.info(f"[CSV] {fname} -> sheet '{base}'")
+            planned_names.append(stem)
+            logging.info(f"[CSV] {fname} -> sheet '{stem}'")
 
     # Enforce uniqueness + length limits
     final_names = uniquify_and_truncate(planned_names, MAX_SHEETNAME_LEN)
