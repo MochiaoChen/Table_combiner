@@ -42,9 +42,9 @@ pip install pandas openpyxl
 ```bash
 pip install pandas openpyxl
 # 运行
-python merge_tables_cli.py -i /your/folder/path -o "ABC.xlsx"
+python combiner.py -i /your/folder/path -o "ABC.xlsx"
 # 静默模式（仅警告/错误）
-python merge_tables_cli.py -i /your/folder/path -o "ABC.xlsx" -q
+python combiner.py -i /your/folder/path -o "ABC.xlsx" -q
 
 ```
 
